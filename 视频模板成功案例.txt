@@ -1,0 +1,149 @@
+
+//背景视频
+ffmpeg -loop 1 -f image2 -i https://sf6-ttcdn-tos.pstatp.com/img/web.ad.site.public/201908015d0d50513a81ae164615a277~noop_q30.image -s 360x640 -threads 2 -thread_type frame -y -r 10 -t 10  background.mp4
+
+//添加白背景
+ffmpeg -i background.mp4 -i bg.png -filter_complex "[1:v]scale=310:580[img1];[0:v][img1]overlay=x=(W-w)/2:y=(H-h)/2" -threads 2 -thread_type frame -y bg1.mp4	
+
+ffmpeg -i background.mp4 -i line.png -filter_complex "overlay=x=50:y=20" -y line.mp4
+
+
+ffmpeg -i background.mp4 -i line.mp4 -filter_complex "blend=all_expr='if(gte( (X-N*50*SW),0),A,B)'" -y -t 1 out15.mp4
+
+
+
+ffmpeg -i bg1.mp4 -vf "[in]drawtext=fontfile=/usr/share/fonts/chinese/simkai.ttf:text='看完这10本书':fontcolor=black:fontsize=32:x=(W-tw)/2:y=70,fade=" -threads 2 -thread_type frame -y bg2.mp4
+
+ffmpeg -i bg1.mp4 -vf "[in]drawtext=fontfile=/usr/share/fonts/chinese/simkai.ttf:text='看完这10本书':fontcolor=black:fontsize=32:x=(W-tw)/2:y=70,drawtext=fontfile=/usr/share/fonts/chinese/simkai.ttf:text='没人把你当软柿子捏':fontcolor=red:fontsize=32:x=(W-tw)/2:y=140,drawtext=fontfile=/usr/share/fonts/chinese/simkai.ttf:text='1.<<墨菲定律>>':fontcolor=black:fontsize=24:x=(W-tw)/2:y=180,drawtext=fontfile=/usr/share/fonts/chinese/simkai.ttf:text='2.<<说话心理学>>':fontcolor=black:fontsize=24:x=(W-tw)/2:y=220,drawtext=fontfile=/usr/share/fonts/chinese/simkai.ttf:text='3.<<狼道>>':fontcolor=black:fontsize=24:x=(W-tw)/2:y=260,drawtext=fontfile=/usr/share/fonts/chinese/simkai.ttf:text='4.<<微表情心理学>>':fontcolor=black:fontsize=24:x=(W-tw)/2:y=300,drawtext=fontfile=/usr/share/fonts/chinese/simkai.ttf:text='5.<<九型人格>>':fontcolor=black:fontsize=24:x=(W-tw)/2:y=340,drawtext=fontfile=/usr/share/fonts/chinese/simkai.ttf:text='6.<<读心术>>':fontcolor=black:fontsize=24:x=(W-tw)/2:y=380,drawtext=fontfile=/usr/share/fonts/chinese/simkai.ttf:text='7.<<人际交往心理学>>':fontcolor=black:fontsize=24:x=(W-tw)/2:y=420,drawtext=fontfile=/usr/share/fonts/chinese/simkai.ttf:text='8.<<鬼谷子>>':fontcolor=black:fontsize=24:x=(W-tw)/2:y=460,drawtext=fontfile=/usr/share/fonts/chinese/simkai.ttf:text='9.<<羊皮卷>>':fontcolor=black:fontsize=24:x=(W-tw)/2:y=500,drawtext=fontfile=/usr/share/fonts/chinese/simkai.ttf:text='10.<<人性的弱点>>':fontcolor=black:fontsize=24:x=(W-tw)/2:y=540" -threads 2 -thread_type frame -y -t 1 shou.mp4
+
+
+//一个字 8px
+24 像素 宽 27px 高 15px
+ffmpeg -i bg1.mp4 -vf "[in]drawtext=fontfile=/usr/share/fonts/chinese/simkai.ttf:text='看完这10本书':fontcolor=black:fontsize=32:x=(W-tw)/2:y=70,drawtext=fontfile=/usr/share/fonts/chinese/simkai.ttf:text='没人把你当软柿子捏':fontcolor=red:fontsize=32:x=(W-tw)/2:y=120" -threads 2 -thread_type frame -y shou.mp4
+
+//第一组线和手组合叠加滤镜显示
+ffmpeg -i shou.mp4 -i line.png -filter_complex "[1:v]scale=189:10[img1];[0:v][img1]overlay=x='(W-189)/2':y=200"  -y -t 1 line1.mp4
+ffmpeg -i shou.mp4 -i shou.png -filter_complex "[1:v]scale=50:100[img1];[0:v][img1]overlay=x='if(lte(t,1),(W-189)/2+189*t,NAN)':y=200:enable='between(t,0,1)'"  -y shou1.mp4
+ffmpeg -i shou1.mp4 -i line1.mp4 -filter_complex "blend=all_expr='if(gte( (X-N*30*SW),0),A,B)'" -y -t 1 put1.mp4
+
+
+ffmpeg -i shou.mp4 -i line.png -filter_complex "[1:v]scale=216:10[img1];[0:v][img1]overlay=x='(W-216)/2':y=240"  -y -t 1 line2.mp4
+ffmpeg -i shou.mp4 -i shou.png -filter_complex "[1:v]scale=50:100[img1];[0:v][img1]overlay=x='if(lte(t,1),(W-216)/2+216*t,NAN)':y=240:enable='between(t,0,1)'"  -y shou2.mp4
+ffmpeg -i shou2.mp4 -i line2.mp4 -filter_complex "blend=all_expr='if(gte( (X-N*30*SW),0),A,B)'" -y -t 1 put2.mp4
+
+
+
+ffmpeg -i shou.mp4 -i line.png -filter_complex "[1:v]scale=135:10[img1];[0:v][img1]overlay=x='(W-135)/2':y=280"  -y -t 1 line3.mp4
+ffmpeg -i shou.mp4 -i shou.png -filter_complex "[1:v]scale=50:100[img1];[0:v][img1]overlay=x='if(lte(t,1),(W-135)/2+135*t,NAN)':y=280:enable='between(t,0,1)'"  -y shou3.mp4
+ffmpeg -i shou3.mp4 -i line3.mp4 -filter_complex "blend=all_expr='if(gte( (X-N*30*SW),0),A,B)'" -y -t 1 put3.mp4
+
+ffmpeg -i shou.mp4 -i line.png -filter_complex "[1:v]scale=243:10[img1];[0:v][img1]overlay=x='(W-243)/2':y=320"  -y -t 1 line4.mp4
+ffmpeg -i shou.mp4 -i shou.png -filter_complex "[1:v]scale=50:100[img1];[0:v][img1]overlay=x='if(lte(t,1),(W-243)/2+243*t,NAN)':y=320:enable='between(t,0,1)'"  -y shou4.mp4
+ffmpeg -i shou4.mp4 -i line4.mp4 -filter_complex "blend=all_expr='if(gte( (X-N*30*SW),0),A,B)'" -y -t 1 put4.mp4
+
+
+ffmpeg -i shou.mp4 -i line.png -filter_complex "[1:v]scale=189:10[img1];[0:v][img1]overlay=x='(W-189)/2':y=360"  -y -t 1 line5.mp4
+ffmpeg -i shou.mp4 -i shou.png -filter_complex "[1:v]scale=50:100[img1];[0:v][img1]overlay=x='if(lte(t,1),(W-189)/2+189*t,NAN)':y=360:enable='between(t,0,1)'"  -y shou5.mp4
+ffmpeg -i shou5.mp4 -i line5.mp4 -filter_complex "blend=all_expr='if(gte( (X-N*30*SW),0),A,B)'" -y -t 1 put5.mp4
+
+
+ffmpeg -i shou.mp4 -i line.png -filter_complex "[1:v]scale=162:10[img1];[0:v][img1]overlay=x='(W-162)/2':y=400"  -y -t 1 line6.mp4
+ffmpeg -i shou.mp4 -i shou.png -filter_complex "[1:v]scale=50:100[img1];[0:v][img1]overlay=x='if(lte(t,1),(W-162)/2+162*t,NAN)':y=400:enable='between(t,0,1)'"  -y shou6.mp4
+ffmpeg -i shou6.mp4 -i line6.mp4 -filter_complex "blend=all_expr='if(gte( (X-N*30*SW),0),A,B)'" -y -t 1 put6.mp4
+
+ffmpeg -i shou.mp4 -i line.png -filter_complex "[1:v]scale=270:10[img1];[0:v][img1]overlay=x='(W-270)/2':y=440"  -y -t 1 line7.mp4
+ffmpeg -i shou.mp4 -i shou.png -filter_complex "[1:v]scale=50:100[img1];[0:v][img1]overlay=x='if(lte(t,1),(W-270)/2+270*t,NAN)':y=440:enable='between(t,0,1)'"  -y shou7.mp4
+ffmpeg -i shou7.mp4 -i line7.mp4 -filter_complex "blend=all_expr='if(gte( (X-N*30*SW),0),A,B)'" -y -t 1 put7.mp4
+
+ffmpeg -i shou.mp4 -i line.png -filter_complex "[1:v]scale=162:10[img1];[0:v][img1]overlay=x='(W-162)/2':y=480"  -y -t 1 line8.mp4
+ffmpeg -i shou.mp4 -i shou.png -filter_complex "[1:v]scale=50:100[img1];[0:v][img1]overlay=x='if(lte(t,1),(W-162)/2+162*t,NAN)':y=480:enable='between(t,0,1)'"  -y shou8.mp4
+ffmpeg -i shou8.mp4 -i line8.mp4 -filter_complex "blend=all_expr='if(gte( (X-N*30*SW),0),A,B)'" -y -t 1 put8.mp4
+
+ffmpeg -i shou.mp4 -i line.png -filter_complex "[1:v]scale=162:10[img1];[0:v][img1]overlay=x='(W-162)/2':y=520"  -y -t 1 line9.mp4
+ffmpeg -i shou.mp4 -i shou.png -filter_complex "[1:v]scale=50:100[img1];[0:v][img1]overlay=x='if(lte(t,1),(W-162)/2+162*t,NAN)':y=520:enable='between(t,0,1)'"  -y shou9.mp4
+ffmpeg -i shou9.mp4 -i line9.mp4 -filter_complex "blend=all_expr='if(gte( (X-N*30*SW),0),A,B)'" -y -t 1 put9.mp4
+
+ffmpeg -i shou.mp4 -i line.png -filter_complex "[1:v]scale=216:10[img1];[0:v][img1]overlay=x='(W-216)/2':y=560"  -y -t 1 line10.mp4
+ffmpeg -i shou.mp4 -i shou.png -filter_complex "[1:v]scale=50:100[img1];[0:v][img1]overlay=x='if(lte(t,1),(W-216)/2+216*t,NAN)':y=560:enable='between(t,0,1)'"  -y shou10.mp4
+ffmpeg -i shou10.mp4 -i line10.mp4 -filter_complex "blend=all_expr='if(gte( (X-N*30*SW),0),A,B)'" -y -t 1 put10.mp4
+
+//合并
+ffmpeg -i put1.mp4 -vcodec copy -acodec copy -vbsf h264_mp4toannexb -y shou1.ts
+ffmpeg -i put2.mp4 -vcodec copy -acodec copy -vbsf h264_mp4toannexb -y shou2.ts
+ffmpeg -i put3.mp4 -vcodec copy -acodec copy -vbsf h264_mp4toannexb -y shou3.ts
+ffmpeg -i put4.mp4 -vcodec copy -acodec copy -vbsf h264_mp4toannexb -y shou4.ts
+ffmpeg -i put5.mp4 -vcodec copy -acodec copy -vbsf h264_mp4toannexb -y shou5.ts
+ffmpeg -i put6.mp4 -vcodec copy -acodec copy -vbsf h264_mp4toannexb -y shou6.ts
+ffmpeg -i put7.mp4 -vcodec copy -acodec copy -vbsf h264_mp4toannexb -y shou7.ts
+ffmpeg -i put8.mp4 -vcodec copy -acodec copy -vbsf h264_mp4toannexb -y shou8.ts
+ffmpeg -i put9.mp4 -vcodec copy -acodec copy -vbsf h264_mp4toannexb -y shou9.ts
+ffmpeg -i put10.mp4 -vcodec copy -acodec copy -vbsf h264_mp4toannexb -y shou10.ts
+
+ffmpeg -i "concat:shou1.ts|shou2.ts|shou3.ts|shou4.ts|shou5.ts" -acodec copy -vcodec copy -absf aac_adtstoasc -y first.mp4
+|shou6.ts|shou7.ts|shou8.ts|shou9.ts|shou10.ts
+
+//添加多文字
+
+ffmpeg -i bg1.mp4 -vf "[in]drawtext=fontfile=/usr/share/fonts/chinese/simkai.ttf:text='看完这10本书':fontcolor=black:fontsize=32:x=(W-tw)/2:y=70,drawtext=fontfile=/usr/share/fonts/chinese/simkai.ttf:text='没人把你当软柿子捏':fontcolor=red:fontsize=32:x=(W-tw)/2:y=140,drawtext=fontfile=/usr/share/fonts/chinese/simkai.ttf:text='1.<<墨菲定律>>':fontcolor=black:fontsize=20:x=(W-tw)/2:y=180,drawtext=fontfile=/usr/share/fonts/chinese/simkai.ttf:text='2.<<说话心理学>>':fontcolor=black:fontsize=20:x=(W-tw)/2:y=220,drawtext=fontfile=/usr/share/fonts/chinese/simkai.ttf:text='3.<<狼道>>':fontcolor=black:fontsize=20:x=(W-tw)/2:y=260,drawtext=fontfile=/usr/share/fonts/chinese/simkai.ttf:text='4.<<微表情心理学>>':fontcolor=black:fontsize=20:x=(W-tw)/2:y=300,drawtext=fontfile=/usr/share/fonts/chinese/simkai.ttf:text='5.<<九型人格>>':fontcolor=black:fontsize=20:x=(W-tw)/2:y=340,drawtext=fontfile=/usr/share/fonts/chinese/simkai.ttf:text='6.<<读心术>>':fontcolor=black:fontsize=20:x=(W-tw)/2:y=380,drawtext=fontfile=/usr/share/fonts/chinese/simkai.ttf:text='7.<<人际交往心理学>>':fontcolor=black:fontsize=20:x=(W-tw)/2:y=420,drawtext=fontfile=/usr/share/fonts/chinese/simkai.ttf:text='8.<<鬼谷子>>':fontcolor=black:fontsize=20:x=(W-tw)/2:y=460,drawtext=fontfile=/usr/share/fonts/chinese/simkai.ttf:text='9.<<羊皮卷>>':fontcolor=black:fontsize=20:x=(W-tw)/2:y=500,drawtext=fontfile=/usr/share/fonts/chinese/simkai.ttf:text='10.<<人性的弱点>>':fontcolor=black:fontsize=20:x=(W-tw)/2:y=540" -threads 2 -thread_type frame -y bg2.mp4
+
+
+---------------------------------------前半部分视频---------------------------------------------------
+//初始背景图
+ffmpeg -loop 1 -f image2 -i https://sf6-ttcdn-tos.pstatp.com/img/web.ad.site.public/201908015d0d50513a81ae164615a277~noop_q30.image -s 360x640 -threads 2 -thread_type frame -y  -r 10 -t 1.5  background1.mp4
+
+// 一组小视频
+ffmpeg -i background1.mp4 -i blue.png -filter_complex "[1:v]scale=320:130[img1];[0:v][img1]overlay=x=(W-w)/2:y=40,drawtext=fontfile=/usr/share/fonts/chinese/simkai.ttf:text='正确把握人际关系的本质':fontcolor=black:fontsize=24:x=(W-tw)/2:y=th+55"  -y 1.mp4
+
+ffmpeg -i 1.mp4 -i https://sf1-ttcdn-tos.pstatp.com/obj/web.ad.site.public/201908015d0d5789a5b855c344d18833 -i https://sf1-ttcdn-tos.pstatp.com/obj/web.ad.site.public/201908015d0d6110250404c34be59532 -filter_complex "[1:v]scale=280:400[img1];[2:v]scale=280:400[img2];[0:v][img1]overlay=x=(W-w)/2:y=180[out1];[out1][img2]overlay=x='if(lte(t,1.5),(W-w)/2+(W+w)/2/1.5*t,(W-w)/2)':y='if(lte(t,1.5),180+(H+h)/2/1.5*t,180)':enable='between(t,0,1.5)'"  -threads 4 -thread_type frame -y  -t 1.5  11.mp4
+
+//第二组小视频
+ffmpeg -i background1.mp4 -i blue.png -filter_complex "[1:v]scale=320:130[img1];[0:v][img1]overlay=x=(W-w)/2:y=40,drawtext=fontfile=/usr/share/fonts/chinese/simkai.ttf:text='人际关系中的心理策略':fontcolor=black:fontsize=24:x=(W-tw)/2:y=th+55"  -y 2.mp4
+
+ffmpeg -i 2.mp4  -i https://sf1-ttcdn-tos.pstatp.com/obj/web.ad.site.public/201908015d0dbbac4439667042f4b08c -i https://sf1-ttcdn-tos.pstatp.com/obj/web.ad.site.public/201908015d0d5789a5b855c344d18833 -filter_complex "[1:v]scale=280:400[img1];[2:v]scale=280:400[img2];[0:v][img1]overlay=x=(W-w)/2:y=180[out1];[out1][img2]overlay=x='if(lte(t,1.5),(W-w)/2+(W+w)/2/1.5*t,(W-w)/2)':y='if(lte(t,1.5),180+(H+h)/2/1.5*t,180)':enable='between(t,0,1.5)'"  -threads 4 -thread_type frame -y  -t 1.5  22.mp4
+
+
+//第三组小视频 狼道
+ffmpeg -i background1.mp4 -i blue.png -filter_complex "[1:v]scale=320:130[img1];[0:v][img1]overlay=x=(W-w)/2:y=40,drawtext=fontfile=/usr/share/fonts/chinese/simkai.ttf:text='生活中的强者法则':fontcolor=black:fontsize=24:x=(W-tw)/2:y=th+55"  -y 3.mp4
+
+ffmpeg -i 3.mp4   -i https://sf1-ttcdn-tos.pstatp.com/obj/web.ad.site.public/201908015d0d5789a5b855c344d18833 -i https://sf1-ttcdn-tos.pstatp.com/img/web.ad.site.public/201908015d0d5570d0b09d3b4dc393f1~noop_q30.image -filter_complex "[1:v]scale=280:400[img1];[2:v]scale=280:400[img2];[0:v][img1]overlay=x=(W-w)/2:y=180[out1];[out1][img2]overlay=x='if(lte(t,1.5),(W-w)/2+(W+w)/2/1.5*t,(W-w)/2)':y='if(lte(t,1.5),180+(H+h)/2/1.5*t,180)':enable='between(t,0,1.5)'"  -threads 4 -thread_type frame -y  -t 1.5  33.mp4
+
+//第四组小视频 九型人格
+ffmpeg -i background1.mp4 -i blue.png -filter_complex "[1:v]scale=320:130[img1];[0:v][img1]overlay=x=(W-w)/2:y=40,drawtext=fontfile=/usr/share/fonts/chinese/simkai.ttf:text='发挥自己的个性优势':fontcolor=black:fontsize=24:x=(W-tw)/2:y=th+55"  -y 4.mp4
+
+ffmpeg -i 4.mp4 -i https://sf1-ttcdn-tos.pstatp.com/img/web.ad.site.public/201908015d0d5570d0b09d3b4dc393f1~noop_q30.image -i https://sf1-ttcdn-tos.pstatp.com/img/web.ad.site.public/201908015d0d5b49a24817ec42c79108~noop_q30.image -filter_complex "[1:v]scale=280:400[img1];[2:v]scale=280:400[img2];[0:v][img1]overlay=x=(W-w)/2:y=180[out1];[out1][img2]overlay=x='if(lte(t,1.5),(W-w)/2+(W+w)/2/1.5*t,(W-w)/2)':y='if(lte(t,1.5),180+(H+h)/2/1.5*t,180)':enable='between(t,0,1.5)'"  -threads 4 -thread_type frame -y  -t 1.5  44.mp4
+
+
+//第五组小视频 读心术
+ffmpeg -i background1.mp4 -i blue.png -filter_complex "[1:v]scale=320:130[img1];[0:v][img1]overlay=x=(W-w)/2:y=40,drawtext=fontfile=/usr/share/fonts/chinese/simkai.ttf:text='在第一时间看透对方':fontcolor=black:fontsize=24:x=(W-tw)/2:y=th+55"  -y 5.mp4
+
+ffmpeg -i 5.mp4 -i https://sf1-ttcdn-tos.pstatp.com/img/web.ad.site.public/201908015d0d5b49a24817ec42c79108~noop_q30.image -i https://sf1-ttcdn-tos.pstatp.com/img/web.ad.site.public/201908015d0d10594c08506647e3b808~noop_q30.image  -filter_complex "[1:v]scale=280:400[img1];[2:v]scale=280:400[img2];[0:v][img1]overlay=x=(W-w)/2:y=180[out1];[out1][img2]overlay=x='if(lte(t,1.5),(W-w)/2+(W+w)/2/1.5*t,(W-w)/2)':y='if(lte(t,1.5),180+(H+h)/2/1.5*t,180)':enable='between(t,0,1.5)'"  -threads 4 -thread_type frame -y  -t 1.5  55.mp4
+
+
+//第六组小视频 鬼谷子
+ffmpeg -i background1.mp4 -i blue.png -filter_complex "[1:v]scale=320:130[img1];[0:v][img1]overlay=x=(W-w)/2:y=40,drawtext=fontfile=/usr/share/fonts/chinese/simkai.ttf:text='无数人生问题的答案之书':fontcolor=black:fontsize=24:x=(W-tw)/2:y=th+55"  -y 6.mp4
+
+ffmpeg -i 6.mp4 -i https://sf1-ttcdn-tos.pstatp.com/img/web.ad.site.public/201908015d0d10594c08506647e3b808~noop_q30.image -i https://sf1-ttcdn-tos.pstatp.com/img/web.ad.site.public/201908015d0dcff79f766cb248ab8f9a~noop_q30.image  -filter_complex "[1:v]scale=280:400[img1];[2:v]scale=280:400[img2];[0:v][img1]overlay=x=(W-w)/2:y=180[out1];[out1][img2]overlay=x='if(lte(t,1.5),(W-w)/2+(W+w)/2/1.5*t,(W-w)/2)':y='if(lte(t,1.5),180+(H+h)/2/1.5*t,180)':enable='between(t,0,1.5)'"  -threads 4 -thread_type frame -y  -t 1.5  66.mp4
+
+
+//合并
+ffmpeg -i 11.mp4 -vcodec copy -acodec copy -vbsf h264_mp4toannexb 1.ts
+ffmpeg -i 22.mp4 -vcodec copy -acodec copy -vbsf h264_mp4toannexb 2.ts
+ffmpeg -i 33.mp4 -vcodec copy -acodec copy -vbsf h264_mp4toannexb 3.ts
+ffmpeg -i 44.mp4 -vcodec copy -acodec copy -vbsf h264_mp4toannexb 4.ts
+ffmpeg -i 55.mp4 -vcodec copy -acodec copy -vbsf h264_mp4toannexb 5.ts
+ffmpeg -i 66.mp4 -vcodec copy -acodec copy -vbsf h264_mp4toannexb 6.ts
+
+
+
+ffmpeg -i "concat:1.ts|2.ts|3.ts|4.ts|5.ts|6.ts" -acodec copy -vcodec copy -absf aac_adtstoasc -y output.mp4
+
+ffmpeg -i first.mp4 -vcodec copy -acodec copy -vbsf h264_mp4toannexb 7.ts
+ffmpeg -i output.mp4 -vcodec copy -acodec copy -vbsf h264_mp4toannexb 8.ts
+
+
+
+
+
+
+
+

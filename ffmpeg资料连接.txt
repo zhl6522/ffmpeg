@@ -1,0 +1,16 @@
+https://zhuanlan.zhihu.com/p/91287979    ##新手学FFmpge - 如何计算Overlay中的坐标点
+
+https://www.cnblogs.com/leisure_chn/p/10434209.html   ##FFmpeg中overlay滤镜用法-水印及画中画
+
+
+https://www.jianshu.com/p/b30f07055e2e   ##FFmpeg命令行语法之-filter_complex
+
+https://www.cnblogs.com/zxqstrong/p/4555517.html    ##   ffmpeg：编解码过程，基本用法
+
+
+https://www.cnblogs.com/boonya/p/9259839.html   ##FFmpeg 滤镜及其效果
+
+https://blog.csdn.net/joee33/category_6318326.html ##各种滤镜
+
+
+https://ffmpeg.org/ffmpeg.html#Complex-filtergraphs-1  ##ffmpeg官网参数

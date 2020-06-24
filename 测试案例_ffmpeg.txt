@@ -1,0 +1,127 @@
+1 用图片背景生成15s静止视频
+
+ffmpeg -loop 1 -f image2 -i 01.jpg -vcodec libx264 -s 364x640 -pix_fmt yuv420p -r 15 -t 15 head.mp4
+
+2 logo 水印防止视频左上角 上下左右角生成 logo  主要参数  overlay = x:y
+
+ffmpeg -i head.mp4 -i ring.png -filter_complex overlay=W-w:56 -max_muxing_queue_size 1024 right_logo.mp4
+
+if(lte(t,5),-tw+(W+tw)/2/5*t,(W-tw)/2)
+-vf 
+s=v/t
+-af
+--filter_complex overlay=w:h
+
+3 去除logo
+ffmpeg -i left_logo.mp4 -filter_complex "delogo=x=264:y=56:w=100:h=87:show=0" delogo1.mp4
+
+4 截取音频片段
+ffmpeg  -i  https://img-gamebox.vdongchina.com/molixcx/a08203f82b30d74bb9c3eed66b480a47.mp3 -acodec copy  -threads 2 -thread_type frame -y -ss 00:03:00  -t  19  audio.mp3
+
+5 合并音频+视频
+https://www.jianshu.com/p/2a824f13b2af
+
+ffmpeg -i success.mp4 -i audio.mp3 -c:v copy -c:a aac -strict experimental -map 0:v:0 -map 1:a:0 ok.mp4
+
+
+6 视频文字合并
+ffmpeg -i av_head.mp4 -filter_complex "drawtext=fontfile=/usr/share/fonts/liberation/LiberationSerif-Italic.ttf:text='Hello World':fontcolor=red:fontsize=24:x=(W-tw)/2:y=10    :enable='between(t,0,8)'" -threads 2 -thread_type frame -y avt_head.mp4
+
+
+7 图片+文字+音频+视频
+ffmpeg -i avt_head.mp4 -i https://sf1-ttcdn-tos.pstatp.com/obj/web.ad.site.public/201908015d0dbbac4439667042f4b08c -filter_complex "[1:v]scale=210:284[img1];[0:v][img1]overlay=x=(W-w)/2:y=(H-h)/2:enable='between(t,0,8)'" -threads 2 -thread_type frame -y avti_head.mp4
+
+
+8 动画加载效果
+文字左侧划入 停放中间 +  图片 3秒后显示，展示中间5秒，从右下侧划入消失
+x='if(lte(t,5),-tw+(W+tw)/2/5*t,(W-tw)/2)':y=610
+
+tw : 文字宽度 
+W : 视频宽度s
+ffmpeg -i av_head.mp4 -filter_complex "drawtext=fontfile=/usr/share/fonts/liberation/LiberationSerif-Italic.ttf:text='Hello World':fontcolor=red:fontsize=24:x='if(lte(t,5),-tw+(W+tw)/2/5*t,(W-tw)/2)':y=610:enable='between(t,0,8)'" -threads 2 -thread_type frame -y -r 30 -t 15 savt_head.mp4
+
+
+9 多图片（动画加载）+音频+文字+视频
+
+ffmpeg \
+-i savt_head.mp4 \
+-i https://sf1-ttcdn-tos.pstatp.com/obj/web.ad.site.public/201908015d0d5789a5b855c344d18833	\
+-i https://sf1-ttcdn-tos.pstatp.com/obj/web.ad.site.public/201908015d0d6110250404c34be59532 \
+-i https://sf1-ttcdn-tos.pstatp.com/obj/web.ad.site.public/201908015d0dbbac4439667042f4b08c \
+ -filter_complex \
+ "[1:v]scale=210:280[img1]; \
+[2:v]scale=210:280[img2]; \
+[3:v]scale=210:280[img3]; \ 
+[0:v][img1]overlay=x='if(lte(t,2),(W-w)/2,(W-w)/2+(W+w)/2/4*(t-2))':y='if(lte(t,2),(H-h)/2,(H-h)/2+(H+h)/2/4*(t-2))' \
+" -threads 2 -thread_type frame -y -r 30 -t 15 total.mp4
+
+
+
+10 图片重叠动画效果 视频合并
+ffmpeg -i savt_head.mp4 -i https://sf1-ttcdn-tos.pstatp.com/obj/web.ad.site.public/201908015d0d5789a5b855c344d18833 -i https://sf1-ttcdn-tos.pstatp.com/obj/web.ad.site.public/201908015d0d6110250404c34be59532 -filter_complex "[1:v]scale=210:280[img1];[2:v]scale=210:280[img2];[0:v][img1]overlay=x=(W-w)/2:y=(H-h)/2[out1];[out1][img2]overlay=x='if(lte(t,5),(W-w)/2+(W+w)/2/4*t,(W-w)/2)':y='if(lte(t,5),(H-h)/2+(H+h)/2/4*t,(H-h)/2)':enable='between(t,0,5)'"  -threads 4 -thread_type frame -y  -t 5  22.mp4
+
+
+ffmpeg -i savt_head.mp4 -i https://sf1-ttcdn-tos.pstatp.com/obj/web.ad.site.public/201908015d0dbbac4439667042f4b08c  -i https://sf1-ttcdn-tos.pstatp.com/obj/web.ad.site.public/201908015d0d5789a5b855c344d18833 -filter_complex "[1:v]scale=210:280[img1];[2:v]scale=210:280[img2];[0:v][img1]overlay=x=(W-w)/2:y=(H-h)/2[out1];[out1][img2]overlay=x='if(lte(t,5),(W-w)/2+(W+w)/2/4*t,(W-w)/2)':y='if(lte(t,5),(H-h)/2+(H+h)/2/4*t,(H-h)/2)':enable='between(t,0,5)'"  -threads 4 -thread_type frame -y -t 5  33.mp4
+
+
+//合并
+ffmpeg -i 22.mp4 -vcodec copy -acodec copy -vbsf h264_mp4toannexb 1.ts
+ffmpeg -i 33.mp4 -vcodec copy -acodec copy -vbsf h264_mp4toannexb 2.ts
+ffmpeg -i "concat:1.ts|2.ts" -acodec copy -vcodec copy -absf aac_adtstoasc -y output.mp4
+
+
+-i 设定输入流 
+-f 设定输出格式 
+-ss 开始时间 
+-b:v 2000k -bufsize 2000k  主要是控制平均码率 比如一个视频源的码率太高了，有10Mbps，文件太大，想把文件弄小一点，但是又不破坏分辨率。 ffmpeg -i input.mp4 -b:v 2000k output.mp4上面把码率从原码率转成2Mbps码率，这样其实也间接让文件变小了
+
+
+
+
+
+
+ffmpeg 
+-i 1.mp4 
+-i https://sf1-ttcdn-tos.pstatp.com/obj/web.ad.site.public/201908015d0d5789a5b855c344d18833	 
+-i https://sf1-ttcdn-tos.pstatp.com/obj/web.ad.site.public/201908015d0d6110250404c34be59532 
+-i https://sf1-ttcdn-tos.pstatp.com/obj/web.ad.site.public/201908015d0dbbac4439667042f4b08c 
+-filter_complex "
+[1:v]scale=300:400[img1];    #将输入的图片1920x1080缩小到300:400输出  [1:v] 
+[2:v]scale=300:400[img2];
+[3:v]scale=300:400[img3];
+[0:v][img1]overlay=
+x='if(lte(t,4),(W-w)/2+(W+w)/2/4*t,W)'  # x 代表横向坐标 
+:y='if(lte(t,4),(H-h)/2+(H+h)/2/4*t,H)'
+:enable='between(t,0.000000,5.000000)', #between 视频时间范围内显示 
+drawtext=   #设置字体属性 
+fontfile=/usr/share/fonts/liberation/LiberationSerif-Italic.ttf  #设置文字集体 
+:text='Hello World 1'   #设置文字内容
+:fontcolor=red   #设置文字颜色
+:fontsize=15  #设置文字大小
+:x=w-mod(2*n\,w+tw)   #设置文字x坐标 运动轨迹
+:y=10    #设置文字y坐标 运动轨迹
+:enable='between(t,0.022000,5.000000)'[out_1];
+[out_1][img2]overlay=
+x='if(lte(t,8),-w+(W+w)/2/4*(t-4),(W-w)/2)'
+:y=(H-h)/2
+:enable='between(t,5.000000,9.000000)',
+drawtext=
+fontfile=/usr/share/fonts/liberation/LiberationSerif-Italic.ttf
+:text='HHonver'
+:fontcolor=red
+:fontsize=15
+:x=w-mod(2*n\,w+(t-4)*w)
+:y=10
+:enable='between(t,5.000000,9.000000)'[out_2];
+[out_2][img3]overlay=
+x='if(gte(t,10),(W-w)/2+(W+w)/2/4*(t-10),W+10)'
+:y=(H-h)/2
+:enable='between(t,10.000000,15.000000)',
+drawtext=
+fontfile=/usr/share/fonts/liberation/LiberationSerif-Italic.ttf
+:text='FOOTER'
+:fontcolor=red
+:fontsize=15
+:x=w-mod(2*n\,w+tw)
+:y=10
+:enable='between(t,9.00000,13.000000)'"  -acodec copy -vcodec libx264 -b:v 500k -threads 4 -thread_type frame -preset faster -tune zerolatency  -y -r 30 -ss 00:00:00 -t 15  22.mp4
